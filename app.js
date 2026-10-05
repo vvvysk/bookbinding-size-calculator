@@ -18,9 +18,12 @@ const els = {
   ruleText: $("ruleText"),
   notice: $("notice"),
   material: $("material"),
-  cuttingAllowance: $("cuttingAllowance"),
+  turnIn: $("turnIn"),
+  edgeWrapAllowance: $("edgeWrapAllowance"),
+  edgeWrapResult: $("edgeWrapResult"),
+  totalSideResult: $("totalSideResult"),
   materialResult: $("materialResult"),
-  allowanceResult: $("allowanceResult"),
+  turnInResult: $("turnInResult"),
   caseWidthResult: $("caseWidthResult"),
   materialSizeResult: $("materialSizeResult"),
 };
@@ -49,10 +52,13 @@ function render() {
 
     const outer = calculateOuterMaterial(result, {
       material: els.material.value,
-      cuttingAllowance: els.cuttingAllowance.value,
+      turnIn: els.turnIn.value,
+      edgeWrapAllowance: els.edgeWrapAllowance.value,
     });
     els.materialResult.textContent = outer.material;
-    els.allowanceResult.textContent = formatNumber(outer.cuttingAllowance) + " mm";
+    els.turnInResult.textContent = formatNumber(outer.turnIn) + " mm";
+    els.edgeWrapResult.textContent = formatNumber(outer.edgeWrapAllowance) + " mm";
+    els.totalSideResult.textContent = formatNumber(outer.totalSideAllowance) + " mm";
     els.caseWidthResult.textContent = formatNumber(outer.caseWidth) + " mm";
     els.materialSizeResult.textContent = outer.displayWidth + " × " + outer.displayHeight + " mm";
 
@@ -65,7 +71,7 @@ function render() {
     els.spineResult.textContent = "-";
     els.hingeResult.textContent = "-";
     els.squareResult.textContent = "-";
-    [els.materialResult, els.allowanceResult, els.caseWidthResult, els.materialSizeResult]
+    [els.materialResult, els.turnInResult, els.edgeWrapResult, els.totalSideResult, els.caseWidthResult, els.materialSizeResult]
       .forEach(el => { el.textContent = "-"; });
     els.ruleText.innerHTML = "";
     els.notice.textContent = error.message;
@@ -91,10 +97,11 @@ Object.entries(RULES.materials).forEach(([value, material]) => {
   els.material.append(option);
 });
 els.material.addEventListener("change", () => {
-  els.cuttingAllowance.value = RULES.materials[els.material.value].cuttingAllowance;
+  els.turnIn.value = RULES.materials[els.material.value].turnIn;
   render();
 });
-els.cuttingAllowance.value = RULES.materials[els.material.value].cuttingAllowance;
+els.turnIn.value = RULES.materials[els.material.value].turnIn;
+els.edgeWrapAllowance.value = RULES.edgeWrapAllowance;
 els.square.value = RULES.rounded.square;
 els.hingeGap.value = RULES.hingeGap;
 render();

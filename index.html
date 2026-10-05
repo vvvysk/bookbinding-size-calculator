@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>제본 치수 계산기 v0.3</title>
+  <title>제본 치수 계산기 v0.4</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -59,11 +59,15 @@
           <select id="material"></select>
         </label>
         <label>
-          <span>외곽 재단 여유(mm)</span>
-          <input id="cuttingAllowance" type="number" min="0" step="0.1" aria-describedby="allowanceHelp" />
+          <span>안쪽 턴인 목표(mm)</span>
+          <input id="turnIn" type="number" min="0" step="0.1" aria-describedby="turnInHelp" />
+        </label>
+        <label>
+          <span>엣지 회전 여유(mm)</span>
+          <input id="edgeWrapAllowance" type="number" min="0" step="0.1" aria-describedby="turnInHelp" />
         </label>
       </div>
-      <p class="input-help" id="allowanceHelp">보드 바깥쪽 가장자리부터 겉재료 끝까지의 거리입니다. 보드 두께를 돌아가는 부분과 안쪽으로 접히는 부분을 포함합니다.</p>
+      <p class="input-help" id="turnInHelp">안쪽 턴인은 보드 가장자리를 돌아간 뒤 안쪽 면에 실제로 접착되는 목표 폭입니다. 엣지 회전 여유는 보드 두께와 굽힘에서 소모되는 길이입니다.</p>
 
       <h2 class="result-heading">보드 재단</h2>
       <div class="results">
@@ -102,8 +106,16 @@
           <div class="result-main" id="materialResult">-</div>
         </div>
         <div class="result-card">
-          <div class="result-label">외곽 재단 여유</div>
-          <div class="result-main" id="allowanceResult">-</div>
+          <div class="result-label">안쪽 턴인 목표</div>
+          <div class="result-main" id="turnInResult">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">엣지 회전 여유</div>
+          <div class="result-main" id="edgeWrapResult">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">한쪽 총 재단 여유</div>
+          <div class="result-main" id="totalSideResult">-</div>
         </div>
         <div class="result-card">
           <div class="result-label">케이스 전개 가로</div>

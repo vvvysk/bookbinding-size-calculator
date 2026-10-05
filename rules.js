@@ -1,9 +1,10 @@
 export const RULES = Object.freeze({
   hingeGap: 7.8,
+  edgeWrapAllowance: 2.7,
   materials: {
-    fabric: { label: "패브릭", cuttingAllowance: 20 },
-    fauxLeather: { label: "인조가죽", cuttingAllowance: 30 },
-    leather: { label: "천연가죽", cuttingAllowance: 20 },
+    fabric: { label: "패브릭", turnIn: 20 },
+    fauxLeather: { label: "인조가죽", turnIn: 30 },
+    leather: { label: "천연가죽", turnIn: 20 },
   },
 
   flatFabric: {
@@ -112,16 +113,22 @@ export function calculateOuterMaterial(board, input = {}) {
   const materialKey = input.material || "fabric";
   const material = RULES.materials[materialKey];
   if (!material) throw new Error("겉재료를 선택하세요.");
-  const cuttingAllowance = input.cuttingAllowance === undefined
-    ? material.cuttingAllowance : Number(input.cuttingAllowance);
-  if (input.cuttingAllowance === "" || !Number.isFinite(cuttingAllowance) || cuttingAllowance < 0) {
-    throw new Error("외곽 재단 여유는 0 이상의 숫자로 입력하세요.");
+  const turnIn = input.turnIn === undefined
+    ? material.turnIn : Number(input.turnIn);
+  if (input.turnIn === "" || !Number.isFinite(turnIn) || turnIn < 0) {
+    throw new Error("안쪽 턴인 목표는 0 이상의 숫자로 입력하세요.");
   }
+  const edgeWrapAllowance = input.edgeWrapAllowance === undefined
+    ? RULES.edgeWrapAllowance : Number(input.edgeWrapAllowance);
+  if (input.edgeWrapAllowance === "" || !Number.isFinite(edgeWrapAllowance) || edgeWrapAllowance < 0) {
+    throw new Error("엣지 회전 여유는 0 이상의 숫자로 입력하세요.");
+  }
+  const totalSideAllowance = turnIn + edgeWrapAllowance;
   const caseWidth = board.coverWidth * 2 + board.spineWidth + board.hingeGap * 2;
-  const cuttingWidth = caseWidth + cuttingAllowance * 2;
-  const cuttingHeight = board.coverHeight + cuttingAllowance * 2;
+  const cuttingWidth = caseWidth + totalSideAllowance * 2;
+  const cuttingHeight = board.coverHeight + totalSideAllowance * 2;
   return {
-    material: material.label, cuttingAllowance, caseWidth, cuttingWidth, cuttingHeight,
+    material: material.label, turnIn, edgeWrapAllowance, totalSideAllowance, caseWidth, cuttingWidth, cuttingHeight,
     displayWidth: Math.ceil(cuttingWidth),
     displayHeight: Math.ceil(cuttingHeight),
   };

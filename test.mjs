@@ -44,38 +44,49 @@ for (const square of ["", -1, "abc"]) {
 for (const hingeGap of ["", 0, -1, "abc"]) {
   assert.throws(() => calculateBinding({ ...base, hingeGap }), /힌지/);
 }
-// A: 소수 원본 보존 및 최종 표시만 올림
-const sampleBoard = calculateBinding({ ...base, textHeight: 221, square: 5, hingeGap: 7.8 });
-const sampleOuter = calculateOuterMaterial(sampleBoard, { material: "fauxLeather", cuttingAllowance: 30 });
-assert.equal(sampleBoard.coverWidth, 149);
-assert.equal(sampleBoard.coverHeight, 231);
-assert.equal(sampleBoard.spineWidth, 45.5);
-assert.ok(Math.abs(sampleOuter.caseWidth - 359.1) < 1e-9);
-assert.ok(Math.abs(sampleOuter.cuttingWidth - 419.1) < 1e-9);
-assert.equal(sampleOuter.cuttingHeight, 291);
-assert.equal(sampleOuter.displayWidth, 420);
-assert.equal(sampleOuter.displayHeight, 291);
-// B: 재료별 기본값
-for (const [material, expected] of [["fabric", 20], ["fauxLeather", 30], ["leather", 20]]) {
-  assert.equal(RULES.materials[material].cuttingAllowance, expected);
-  assert.equal(calculateOuterMaterial(sampleBoard, { material }).cuttingAllowance, expected);
-}
-// C: 사용자가 수정한 17mm를 그대로 적용
-const customOuter = calculateOuterMaterial(sampleBoard, { material: "leather", cuttingAllowance: 17 });
-assert.equal(customOuter.cuttingAllowance, 17);
-assert.ok(Math.abs(customOuter.cuttingWidth - 393.1) < 1e-9);
-assert.equal(customOuter.cuttingHeight, 265);
-assert.equal(customOuter.displayWidth, 394);
-assert.equal(customOuter.displayHeight, 265);
-const flatOuter = calculateOuterMaterial(flat, { material: "fabric", cuttingAllowance: 17 });
-assert.ok(Math.abs(flatOuter.caseWidth - 303.1) < 1e-9);
-assert.ok(Math.abs(flatOuter.cuttingWidth - 337.1) < 1e-9);
-assert.equal(flatOuter.cuttingHeight, 237.5);
-assert.equal(flatOuter.displayWidth, 338);
-assert.equal(flatOuter.displayHeight, 238);
-for (const cuttingAllowance of ["", -1, "abc", Infinity]) {
-  assert.throws(() => calculateOuterMaterial(sampleBoard, { cuttingAllowance }), /외곽 재단 여유/);
-}
-assert.equal(calculateOuterMaterial(sampleBoard, { cuttingAllowance: 0 }).cuttingHeight, 231);
-console.log("PASS: v0.3 기존 보드 계산 및 겉재료 테스트 A/B/C·입력 검증 완료");
 
+const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9);
+const workBoard = calculateBinding({ bindingType: "flatFabric", textWidth: 132, textHeight: 183, textThickness: 18, hingeGap: 7.8 });
+assert.equal(workBoard.coverWidth, 133);
+assert.equal(workBoard.coverHeight, 190);
+assert.equal(workBoard.spineWidth, 26.5);
+assert.equal(workBoard.spineHeight, 190);
+const workOuter = calculateOuterMaterial(workBoard, { material: "fabric" });
+near(workOuter.caseWidth, 308.1);
+assert.equal(workOuter.turnIn, 20);
+assert.equal(workOuter.edgeWrapAllowance, 2.7);
+near(workOuter.totalSideAllowance, 22.7);
+near(workOuter.cuttingWidth, 353.5);
+near(workOuter.cuttingHeight, 235.4);
+assert.equal(workOuter.displayWidth, 354);
+assert.equal(workOuter.displayHeight, 236);
+for (const [material, expected] of [["fabric",20],["fauxLeather",30],["leather",20]]) {
+  assert.equal(RULES.materials[material].turnIn, expected);
+  assert.equal(calculateOuterMaterial(workBoard, { material }).turnIn, expected);
+}
+assert.equal(RULES.edgeWrapAllowance, 2.7);
+const custom = calculateOuterMaterial(workBoard, { material: "leather", turnIn: 17, edgeWrapAllowance: 3 });
+assert.equal(custom.turnIn, 17);
+assert.equal(custom.edgeWrapAllowance, 3);
+assert.equal(custom.totalSideAllowance, 20);
+near(custom.cuttingWidth, 348.1);
+assert.equal(custom.cuttingHeight, 230);
+assert.equal(custom.displayWidth, 349);
+assert.equal(custom.displayHeight, 230);
+for (const [field, message] of [["turnIn", /안쪽 턴인/], ["edgeWrapAllowance", /엣지 회전/]]) {
+  for (const value of ["", -1, "abc", Infinity]) {
+    assert.throws(() => calculateOuterMaterial(workBoard, { [field]: value }), message);
+  }
+}
+const zero = calculateOuterMaterial(workBoard, { turnIn: 0, edgeWrapAllowance: 0 });
+near(zero.cuttingWidth, 308.1);
+assert.equal(zero.cuttingHeight, 190);
+// 기존 라운드 보드와 전개 가로를 유지합니다.
+const sampleBoard = calculateBinding({ ...base, textHeight: 221 });
+const sampleOuter = calculateOuterMaterial(sampleBoard, { material: "fauxLeather" });
+near(sampleOuter.caseWidth, 359.1);
+near(sampleOuter.cuttingWidth, 424.5);
+near(sampleOuter.cuttingHeight, 296.4);
+assert.equal(sampleOuter.displayWidth, 425);
+assert.equal(sampleOuter.displayHeight, 297);
+console.log("PASS: v0.4 기존 보드·실제 사례 354 × 236mm·턴인/엣지 회전 테스트 완료");
