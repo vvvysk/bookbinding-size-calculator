@@ -1,0 +1,9 @@
+# Local Windows launchers
+제본계산기_실행.bat
+제본계산기_실행.ps1
+# Local development files
+node_modules/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
