@@ -8,7 +8,7 @@ export const RULES = Object.freeze({
   },
 
   flatFabric: {
-    coverWidthDelta: 1.0,
+    coverWidthDelta: 0,
 
     spineWidthDelta: 8.5,
     square: 3.5,

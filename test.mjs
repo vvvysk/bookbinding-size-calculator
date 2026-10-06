@@ -22,7 +22,7 @@ const flat = calculateBinding({
   textThickness: 14,
 });
 
-assert.equal(flat.coverWidth, 132.5);
+assert.equal(flat.coverWidth, 131.5);
 assert.equal(flat.coverHeight, 203.5);
 assert.equal(flat.spineWidth, 22.5);
 assert.equal(flat.hingeGap, 7.8);
@@ -33,7 +33,7 @@ for (const bindingType of ["rounded", "flatFabric"]) {
   assert.equal(result.spineHeight, 231);
   assert.equal(result.square, 4);
   assert.equal(result.hingeGap, 9);
-  assert.equal(result.coverWidth, bindingType === "rounded" ? 149 : 152);
+  assert.equal(result.coverWidth, bindingType === "rounded" ? 149 : 151);
   assert.equal(result.spineWidth, bindingType === "rounded" ? 45.5 : 35);
 }
 const base = { bindingType: "rounded", textWidth: 151, textHeight: 223, textThickness: 26.5 };
@@ -47,18 +47,18 @@ for (const hingeGap of ["", 0, -1, "abc"]) {
 
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9);
 const workBoard = calculateBinding({ bindingType: "flatFabric", textWidth: 132, textHeight: 183, textThickness: 18, hingeGap: 7.8 });
-assert.equal(workBoard.coverWidth, 133);
+assert.equal(workBoard.coverWidth, 132);
 assert.equal(workBoard.coverHeight, 190);
 assert.equal(workBoard.spineWidth, 26.5);
 assert.equal(workBoard.spineHeight, 190);
 const workOuter = calculateOuterMaterial(workBoard, { material: "fabric" });
-near(workOuter.caseWidth, 308.1);
+near(workOuter.caseWidth, 306.1);
 assert.equal(workOuter.turnIn, 20);
 assert.equal(workOuter.edgeWrapAllowance, 2.7);
 near(workOuter.totalSideAllowance, 22.7);
-near(workOuter.cuttingWidth, 353.5);
+near(workOuter.cuttingWidth, 351.5);
 near(workOuter.cuttingHeight, 235.4);
-assert.equal(workOuter.displayWidth, 354);
+assert.equal(workOuter.displayWidth, 352);
 assert.equal(workOuter.displayHeight, 236);
 for (const [material, expected] of [["fabric",20],["fauxLeather",30],["leather",20]]) {
   assert.equal(RULES.materials[material].turnIn, expected);
@@ -69,9 +69,9 @@ const custom = calculateOuterMaterial(workBoard, { material: "leather", turnIn: 
 assert.equal(custom.turnIn, 17);
 assert.equal(custom.edgeWrapAllowance, 3);
 assert.equal(custom.totalSideAllowance, 20);
-near(custom.cuttingWidth, 348.1);
+near(custom.cuttingWidth, 346.1);
 assert.equal(custom.cuttingHeight, 230);
-assert.equal(custom.displayWidth, 349);
+assert.equal(custom.displayWidth, 347);
 assert.equal(custom.displayHeight, 230);
 for (const [field, message] of [["turnIn", /안쪽 턴인/], ["edgeWrapAllowance", /엣지 회전/]]) {
   for (const value of ["", -1, "abc", Infinity]) {
@@ -79,7 +79,7 @@ for (const [field, message] of [["turnIn", /안쪽 턴인/], ["edgeWrapAllowance
   }
 }
 const zero = calculateOuterMaterial(workBoard, { turnIn: 0, edgeWrapAllowance: 0 });
-near(zero.cuttingWidth, 308.1);
+near(zero.cuttingWidth, 306.1);
 assert.equal(zero.cuttingHeight, 190);
 // 기존 라운드 보드와 전개 가로를 유지합니다.
 const sampleBoard = calculateBinding({ ...base, textHeight: 221 });
@@ -89,4 +89,4 @@ near(sampleOuter.cuttingWidth, 424.5);
 near(sampleOuter.cuttingHeight, 296.4);
 assert.equal(sampleOuter.displayWidth, 425);
 assert.equal(sampleOuter.displayHeight, 297);
-console.log("PASS: v0.4 기존 보드·실제 사례 354 × 236mm·턴인/엣지 회전 테스트 완료");
+console.log("PASS: v0.4 기존 보드·실제 사례 352 × 236mm·턴인/엣지 회전 테스트 완료");
