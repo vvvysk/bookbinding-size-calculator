@@ -10,7 +10,7 @@ export const RULES = Object.freeze({
   flatFabric: {
     coverWidthDelta: 0,
 
-    spineWidthDelta: 8.5,
+    spineWidthDelta: 6.0,
     square: 3.5,
     status: "잠정",
   },
