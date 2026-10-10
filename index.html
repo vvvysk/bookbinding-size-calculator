@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>제본 치수 계산기 v0.4</title>
+  <title>제본 치수 계산기 v0.5</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -11,133 +11,77 @@
     <section class="panel">
       <div class="eyebrow">존재공작소 · 제본 도구</div>
       <h1>제본 치수 계산기</h1>
-      <p class="subtitle">속지 치수를 넣으면 커버 보드·책등 보드·힌지와 겉재료 1차 재단 치수를 계산합니다.</p>
-
+      <p class="subtitle">속지 치수와 제본 방식을 입력하면 보드 권장값·힌지·겉재료 1차 재단 치수를 계산합니다.</p>
       <div class="grid">
-        <label>
-          <span>제본 유형</span>
+        <label><span>제본 유형</span>
           <select id="bindingType">
-            <option value="rounded">라운드 책등</option>
+            <option value="roundFabric">패브릭 라운드 (얕은 곡률)</option>
             <option value="flatFabric">패브릭 평등</option>
+            <option value="roundLeather">가죽 라운드 (얕은 곡률)</option>
           </select>
         </label>
-
-        <label>
-          <span>속지 가로 (mm)</span>
-          <input id="textWidth" type="number" step="0.1" value="151" />
-        </label>
-
-        <label>
-          <span>속지 세로 (mm)</span>
-          <input id="textHeight" type="number" step="0.1" value="223" />
-        </label>
-
-        <label>
-          <span>속지 두께 (mm)</span>
-          <input id="textThickness" type="number" step="0.1" value="26.5" />
-        </label>
-
-        <label id="curveField">
-          <span>라운드 곡률</span>
-          <select id="curve">
-            <option value="shallow">얕음 (-1mm)</option>
-            <option value="normal" selected>일반 (-2mm)</option>
-            <option value="deep">깊음 (-3mm)</option>
-          </select>
-        </label>
-
-        <label>
-          <span>상·하 돌출량(mm)</span>
-          <input id="square" type="number" min="0" step="0.1" />
-        </label>
-        <label>
-          <span>힌지 간격(mm)</span>
-          <input id="hingeGap" type="number" min="0.1" step="0.1" />
-        </label>
-        <label>
-          <span>겉재료</span>
-          <select id="material"></select>
-        </label>
-        <label>
-          <span>안쪽 턴인 목표(mm)</span>
-          <input id="turnIn" type="number" min="0" step="0.1" aria-describedby="turnInHelp" />
-        </label>
-        <label>
-          <span>엣지 회전 여유(mm)</span>
-          <input id="edgeWrapAllowance" type="number" min="0" step="0.1" aria-describedby="turnInHelp" />
-        </label>
+        <label><span>속지 가로 (mm)</span><input id="textWidth" type="number" min="0.1" step="0.1" value="132" /></label>
+        <label><span>속지 세로 (mm)</span><input id="textHeight" type="number" min="0.1" step="0.1" value="183" /></label>
+        <label><span>속지 두께 (mm)</span><input id="textThickness" type="number" min="0.1" step="0.1" value="18" /></label>
+        <label><span>상·하 돌출량 (mm)</span><input id="square" type="number" min="0" step="0.1" /></label>
+        <label><span>힌지 간격 (mm)</span><input id="hingeGap" type="number" min="0.1" step="0.1" /></label>
+        <label><span>겉재료</span><select id="material"></select></label>
+        <label><span>안쪽 턴인 목표 (mm)</span><input id="turnIn" type="number" min="0" step="0.1" /></label>
+        <label><span>엣지 회전 여유 (mm)</span><input id="edgeWrapAllowance" type="number" min="0" step="0.1" /></label>
       </div>
-      <p class="input-help" id="turnInHelp">안쪽 턴인은 보드 가장자리를 돌아간 뒤 안쪽 면에 실제로 접착되는 목표 폭입니다. 엣지 회전 여유는 보드 두께와 굽힘에서 소모되는 길이입니다.</p>
+      <p class="input-help">제본 유형과 겉재료는 서로 연동됩니다. 가죽(천연·인조)은 동일한 라운드 보드 규칙을 사용하며 턴인 값만 다릅니다. 안쪽 턴인은 보드 모서리를 돌아 안쪽 면에 접착되는 목표 폭입니다.</p>
 
-      <h2 class="result-heading">보드 재단</h2>
+      <div class="section-line">
+        <h2 class="result-heading">보드 재단</h2>
+        <button id="restoreBoards" type="button" class="restore-button">권장 치수 복원</button>
+      </div>
+      <p class="input-help board-tip">아래 가로·세로를 직접 수정할 수 있습니다. 겉재료 계산은 표시된 <strong>최종 재단 치수</strong>를 사용합니다.</p>
       <div class="results">
         <div class="result-card">
-          <div class="result-label">앞·뒤 커버 보드</div>
-          <div class="result-main" id="coverResult">149 × 233 mm</div>
-          <div class="result-sub">2장</div>
+          <div class="result-label">앞·뒤 커버 보드 · 2장</div>
+          <div class="result-main" id="coverResult">-</div>
+          <div class="result-sub">자동 권장: <span id="coverRecommended">-</span></div>
+          <div class="board-edit">
+            <label><span>최종 가로 (mm)</span><input id="coverWidth" type="number" min="0.1" step="0.1" /></label>
+            <label><span>최종 세로 (mm)</span><input id="coverHeight" type="number" min="0.1" step="0.1" /></label>
+          </div>
         </div>
-
         <div class="result-card">
-          <div class="result-label">책등 보드</div>
-          <div class="result-main" id="spineResult">45.5 × 233 mm</div>
-          <div class="result-sub">1장</div>
+          <div class="result-label">책등 보드 · 1장</div>
+          <div class="result-main" id="spineResult">-</div>
+          <div class="result-sub">자동 권장: <span id="spineRecommended">-</span></div>
+          <div class="board-edit">
+            <label><span>최종 가로 (mm)</span><input id="spineWidth" type="number" min="0.1" step="0.1" /></label>
+            <label><span>최종 세로 (mm)</span><input id="spineHeight" type="number" min="0.1" step="0.1" /></label>
+          </div>
         </div>
-
       </div>
+      <p class="input-help" id="boardStatus" aria-live="polite"></p>
+
       <h2 class="result-heading">조립</h2>
       <div class="results">
-        <div class="result-card">
-          <div class="result-label">힌지 간격</div>
-          <div class="result-main" id="hingeResult">7.8 mm</div>
-          <div class="result-sub">좌·우 동일</div>
-        </div>
-
-        <div class="result-card">
-          <div class="result-label">상·하 돌출</div>
-          <div class="result-main" id="squareResult">5 mm</div>
-          <div class="result-sub">각각</div>
-        </div>
+        <div class="result-card"><div class="result-label">힌지 간격</div><div class="result-main" id="hingeResult">-</div><div class="result-sub">좌·우 동일</div></div>
+        <div class="result-card"><div class="result-label">상·하 돌출</div><div class="result-main" id="squareResult">-</div><div class="result-sub">각각</div></div>
       </div>
 
       <h2 class="result-heading">겉재료 1차 재단</h2>
       <div class="results">
-        <div class="result-card">
-          <div class="result-label">재료</div>
-          <div class="result-main" id="materialResult">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">안쪽 턴인 목표</div>
-          <div class="result-main" id="turnInResult">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">엣지 회전 여유</div>
-          <div class="result-main" id="edgeWrapResult">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">한쪽 총 재단 여유</div>
-          <div class="result-main" id="totalSideResult">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">케이스 전개 가로</div>
-          <div class="result-main" id="caseWidthResult">-</div>
-        </div>
-        <div class="result-card">
-          <div class="result-label">겉재료 재단 치수</div>
-          <div class="result-main" id="materialSizeResult">-</div>
-          <div class="result-sub">1mm 단위 올림</div>
-        </div>
+        <div class="result-card"><div class="result-label">재료</div><div class="result-main" id="materialResult">-</div></div>
+        <div class="result-card"><div class="result-label">안쪽 턴인 목표</div><div class="result-main" id="turnInResult">-</div></div>
+        <div class="result-card"><div class="result-label">엣지 회전 여유</div><div class="result-main" id="edgeWrapResult">-</div></div>
+        <div class="result-card"><div class="result-label">한쪽 총 재단 여유</div><div class="result-main" id="totalSideResult">-</div></div>
+        <div class="result-card"><div class="result-label">케이스 전개 가로</div><div class="result-main" id="caseWidthResult">-</div></div>
+        <div class="result-card"><div class="result-label">겉재료 재단 치수</div><div class="result-main" id="materialSizeResult">-</div><div class="result-sub">1mm 단위 올림</div></div>
       </div>
-      <p class="notice">겉재료 치수는 1차 재단 기준입니다. 접착 후 최종 가장자리 정리는 실제 상태를 보고 수행합니다.</p>
+      <p class="notice">겉재료는 1차 재단 기준입니다. 두 보드의 최종 세로가 다르면 긴 쪽을 기준으로 계산하며 접착 후 가장자리 정리는 실제 상태를 보고 수행합니다.</p>
 
       <section class="rule-box">
         <h2>현재 적용 규칙</h2>
         <div id="ruleText"></div>
-        <p class="notice" id="notice"></p>
+        <p class="notice" id="notice" aria-live="polite"></p>
       </section>
     </section>
   </main>
-
   <script type="module" src="./app.js"></script>
 </body>
 </html>
-
