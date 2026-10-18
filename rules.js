@@ -8,7 +8,7 @@ export const RULES = Object.freeze({
   },
   flatFabric: { label: "패브릭 평등", coverWidthDelta: 0, spineWidthDelta: 5, square: 3 },
   roundFabric: { label: "패브릭 라운드", coverWidthDelta: -6, spineWidthDelta: 10, square: 3 },
-  roundLeather: { label: "가죽 라운드", coverWidthDelta: -6, spineWidthDelta: 10, square: 3 },
+  roundLeather: { label: "가죽 라운드", coverWidthDelta: -4, spineWidthDelta: 8, square: 3 },
 });
 
 const BINDING_TYPES = ["flatFabric", "roundFabric", "roundLeather"];

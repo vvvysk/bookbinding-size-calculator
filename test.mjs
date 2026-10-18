@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, RULES } from "./rules.js";
 const base={textWidth:132,textHeight:183,textThickness:18};
-for(const [type,c,s] of [["flatFabric",132,23],["roundFabric",126,28],["roundLeather",126,28]]){
+for(const [type,c,s] of [["flatFabric",132,23],["roundFabric",126,28],["roundLeather",128,26]]){
   const x=calculateBinding({...base,bindingType:type});
   assert.equal(x.coverWidth,c);assert.equal(x.spineWidth,s);
   assert.equal(x.coverHeight,189);assert.equal(x.spineHeight,189);
@@ -12,8 +12,17 @@ const round=calculateBinding({...base,bindingType:"roundFabric"});
 const leather=calculateBinding({...base,bindingType:"roundLeather"});
 assert.equal(calculateOuterMaterial(flat,{material:"fabric"}).displayWidth,348);
 assert.equal(calculateOuterMaterial(round,{material:"fabric"}).displayWidth,341);
-assert.equal(calculateOuterMaterial(leather,{material:"leather"}).displayWidth,341);
-assert.equal(calculateOuterMaterial(leather,{material:"fauxLeather"}).displayWidth,361);
+assert.equal(calculateOuterMaterial(leather,{material:"leather"}).displayWidth,343);
+assert.equal(calculateOuterMaterial(leather,{material:"fauxLeather"}).displayWidth,363);
+// 2026-10-18 실측 조정: 가죽 라운드만 커버 +2mm, 책등 -2mm.
+const currentExample = { textWidth: 133, textHeight: 193, textThickness: 23 };
+const leatherExample = calculateBinding({ ...currentExample, bindingType: "roundLeather" });
+const fabricExample = calculateBinding({ ...currentExample, bindingType: "roundFabric" });
+assert.deepEqual([leatherExample.coverWidth, leatherExample.coverHeight, leatherExample.spineWidth, leatherExample.spineHeight], [129, 199, 31, 199]);
+assert.deepEqual([fabricExample.coverWidth, fabricExample.spineWidth], [127, 33]);
+assert.equal(calculateOuterMaterial(leatherExample, { material: "leather" }).displayWidth, 350);
+assert.equal(calculateOuterMaterial(leatherExample, { material: "fauxLeather" }).displayWidth, 370);
+assert.equal(calculateBinding({ ...currentExample, bindingType: "roundLeather", textThickness: 23.1 }).spineWidth, 31.5);
 assert.equal(RULES.materials.fauxLeather.turnIn,30);
 assert.equal(RULES.materials.leather.turnIn,20);
 const edited=applyBoardDimensions(round,{coverWidth:127,coverHeight:190,spineWidth:30,spineHeight:192});
@@ -25,4 +34,4 @@ for(const v of ["",0,-1,"abc",Infinity]) {
   assert.throws(()=>applyBoardDimensions(round,{spineWidth:v}));
 }
 assert.throws(()=>calculateOuterMaterial(round,{material:"leather"}));
-console.log("PASS v0.5 board geometry, overrides, materials and input validation");
+console.log("PASS v0.5 updated round-leather geometry, overrides, materials and input validation");
