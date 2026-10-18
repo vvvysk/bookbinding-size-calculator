@@ -1,4 +1,4 @@
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, formatNumber, RULES } from "./rules.js";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, formatNumber, RULES } from "./rules.js?v=0.6.1";
 
 const $ = (id) => document.getElementById(id);
 const ids = [
