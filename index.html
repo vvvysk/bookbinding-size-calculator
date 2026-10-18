@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>제본 치수 계산기 v0.5</title>
+  <title>제본 치수 계산기 v0.6</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -57,6 +57,31 @@
         </div>
       </div>
       <p class="input-help" id="boardStatus" aria-live="polite"></p>
+
+      <section class="split-section" aria-labelledby="splitHeading">
+        <div class="section-line">
+          <h2 class="result-heading" id="splitHeading">가죽·북클로스 분할 치수</h2>
+          <label class="split-switch"><input id="splitEnabled" type="checkbox" checked /> 분할 적용</label>
+        </div>
+        <div id="splitDetails">
+          <div class="split-options">
+            <label><span>표지 가로 분할 비율 (%)</span><input id="splitPercent" type="number" min="0.1" max="100" step="0.1" value="20" /></label>
+          </div>
+          <div class="results split-results">
+            <div class="result-card">
+              <div class="result-label">앞·뒤 표지 각각의 분할폭</div>
+              <div class="result-main" id="splitPerCover">-</div>
+              <div class="result-sub">최종 커버보드 가로 × 분할비율</div>
+            </div>
+            <div class="result-card">
+              <div class="result-label">책등·힌지 포함 전체 표면 전개폭</div>
+              <div class="result-main" id="splitAcrossCase">-</div>
+              <div class="result-sub">분할폭 × 2 + 책등보드 가로 + 힌지 간격 × 2</div>
+            </div>
+          </div>
+          <p class="input-help">분할 경계는 원단끼리 <strong>겹치지 않고 맞대는</strong> 기준입니다. 전체 표면 전개폭은 완성 위치를 잡는 치수로, 가죽·북클로스 초벌 재단 시의 여유분이나 실제 곡률·소재 두께 보정은 포함하지 않습니다.</p>
+        </div>
+      </section>
 
       <h2 class="result-heading">조립</h2>
       <div class="results">

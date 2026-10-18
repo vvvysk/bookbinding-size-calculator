@@ -80,6 +80,16 @@ export function applyBoardDimensions(recommended, input = {}) {
   };
 }
 
+// 표지의 가죽/북클로스 분할: 각 커버 보드의 가로를 기준으로 하며 책등과 힌지를 따로 합산합니다.
+// 실제 초벌 재단의 트리밍 여유와 곡률/재료 두께 보정은 포함하지 않습니다.
+export function calculateSplitBinding(board, input = {}) {
+  const percentage = input.percentage === undefined ? 20 : positiveNumber(input.percentage, "분할 비율");
+  if (percentage > 100) throw new Error("분할 비율은 100% 이하여야 합니다.");
+  const perCover = board.coverWidth * percentage / 100;
+  const acrossCase = perCover * 2 + board.spineWidth + board.hingeGap * 2;
+  return { percentage, perCover, acrossCase };
+}
+
 // 계산에는 소수값을 보존하고 겉재료 최종 표시 치수만 1mm 단위로 올립니다.
 export function calculateOuterMaterial(board, input = {}) {
   const materialKey = input.material || "fabric";

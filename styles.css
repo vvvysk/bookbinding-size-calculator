@@ -37,3 +37,11 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
   .result-main { font-size: 24px; }
   .section-line { flex-wrap: wrap; }
 }
+
+[hidden] { display: none !important; }
+.split-section { border-top: 1px solid #e3dfd7; margin-top: 20px; padding-top: 4px; }
+.split-switch { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; cursor: pointer; }
+.split-switch input { width: auto; margin: 0; }
+.split-options { max-width: 240px; margin-top: 4px; }
+.split-results { margin-top: 14px; }
+.split-section .input-help { margin-top: 12px; }

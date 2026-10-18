@@ -1,4 +1,4 @@
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, formatNumber, RULES } from "./rules.js";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, formatNumber, RULES } from "./rules.js";
 
 const $ = (id) => document.getElementById(id);
 const ids = [
@@ -6,11 +6,12 @@ const ids = [
   "coverWidth", "coverHeight", "spineWidth", "spineHeight", "coverResult", "spineResult", "coverRecommended", "spineRecommended",
   "restoreBoards", "boardStatus", "hingeResult", "squareResult", "ruleText", "notice", "materialResult", "turnInResult",
   "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult",
+  "splitEnabled", "splitPercent", "splitDetails", "splitPerCover", "splitAcrossCase",
 ];
 const els = Object.fromEntries(ids.map(id => [id, $(id)]));
 const boardFields = ["coverWidth", "coverHeight", "spineWidth", "spineHeight"];
 const resultFields = ["coverResult", "spineResult", "hingeResult", "squareResult", "materialResult", "turnInResult",
-  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult"];
+  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult", "splitPerCover", "splitAcrossCase"];
 
 function readRecommended() {
   return calculateBinding({
@@ -38,7 +39,16 @@ function render() {
     els.spineResult.textContent = showSize(board.spineWidth, board.spineHeight);
     els.hingeResult.textContent = `${formatNumber(board.hingeGap)} mm`;
     els.squareResult.textContent = `${formatNumber(board.square)} mm`;
-    els.boardStatus.textContent = changed ? "수동 조정한 최종 보드 치수가 겉재료 재단에 반영되었습니다." : "현재 최종 재단 치수는 자동 권장값과 같습니다.";
+    els.boardStatus.textContent = changed ? "수동 조정한 최종 보드 치수가 겉재료 재단과 분할 계산에 반영되었습니다." : "현재 최종 재단 치수는 자동 권장값과 같습니다.";
+    els.splitDetails.hidden = !els.splitEnabled.checked;
+    if (els.splitEnabled.checked) {
+      const split = calculateSplitBinding(board, { percentage: els.splitPercent.value });
+      els.splitPerCover.textContent = `${formatNumber(split.perCover)} mm`;
+      els.splitAcrossCase.textContent = `${formatNumber(split.acrossCase)} mm`;
+    } else {
+      els.splitPerCover.textContent = "-";
+      els.splitAcrossCase.textContent = "-";
+    }
     const outer = calculateOuterMaterial(board, {
       material: els.material.value,
       turnIn: els.turnIn.value,
@@ -120,7 +130,8 @@ els.material.addEventListener("change", () => {
 ["textWidth", "textHeight", "textThickness", "square"].forEach(id => {
   els[id].addEventListener("input", restoreBoards);
 });
-["hingeGap", "turnIn", "edgeWrapAllowance", ...boardFields].forEach(id => {
+["hingeGap", "turnIn", "edgeWrapAllowance", "splitPercent", ...boardFields].forEach(id => {
   els[id].addEventListener("input", render);
 });
+els.splitEnabled.addEventListener("change", render);
 els.restoreBoards.addEventListener("click", restoreBoards);
