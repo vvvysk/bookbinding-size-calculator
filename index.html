@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>제본 치수 계산기 v0.6</title>
-  <link rel="stylesheet" href="./styles.css?v=0.6.1" />
+  <title>제본 치수 계산기 v0.7</title>
+  <link rel="stylesheet" href="./styles.css?v=0.7" />
 </head>
 <body>
   <main class="app-shell">
@@ -13,6 +13,14 @@
       <h1>제본 치수 계산기</h1>
       <p class="subtitle">속지 치수와 제본 방식을 입력하면 보드 권장값·힌지·겉재료 1차 재단 치수를 계산합니다.</p>
       <div class="grid">
+        <label><span>속지 규격</span>
+          <select id="sizePreset">
+            <option value="custom">사용자 입력</option>
+            <option value="small">소형 · B5 반접 (128.5 × 182)</option>
+            <option value="medium">중형 · A4 반접 (148.5 × 210)</option>
+            <option value="large">대형 · B4 반접 (182 × 257)</option>
+          </select>
+        </label>
         <label><span>제본 유형</span>
           <select id="bindingType">
             <option value="roundFabric">패브릭 라운드 (얕은 곡률)</option>
@@ -57,6 +65,33 @@
         </div>
       </div>
       <p class="input-help" id="boardStatus" aria-live="polite"></p>
+      <section class="band-section" aria-labelledby="bandHeading">
+        <div class="section-line">
+          <h2 class="result-heading" id="bandHeading">돌출띠 중심선</h2>
+          <label class="band-choice"><span>돌출띠 개수</span>
+            <select id="bandCount">
+              <option value="5">5개 · 기본안</option>
+              <option value="6">6개 · 대형 비교안</option>
+            </select>
+          </label>
+        </div>
+        <p class="input-help">상하 여백 : 중심선 간격 = 3 : 4. 위치는 <strong>최종 책등 보드 상단</strong>부터의 거리이며, 책등 세로를 직접 수정하면 자동 갱신됩니다. 6개는 대형 비교용으로 아직 확정 표준이 아닙니다.</p>
+        <div class="results band-results">
+          <div class="result-card band-layout-card">
+            <div id="bandPreview" class="band-preview" aria-hidden="true"></div>
+            <div>
+              <div class="result-label">중심선 위치 (상단 기준)</div>
+              <div class="band-positions" id="bandPositions">-</div>
+            </div>
+          </div>
+          <div class="result-card">
+            <div class="result-label">중심선 사이 간격</div>
+            <div class="result-main" id="bandSpacingResult">-</div>
+            <div class="result-label band-secondary-label">상단·하단 중심선 여백</div>
+            <div class="result-main" id="bandEdgeResult">-</div>
+          </div>
+        </div>
+      </section>
 
       <section class="split-section" aria-labelledby="splitHeading">
         <div class="section-line">
@@ -107,6 +142,6 @@
       </section>
     </section>
   </main>
-  <script type="module" src="./app.js?v=0.6.1"></script>
+  <script type="module" src="./app.js?v=0.7"></script>
 </body>
 </html>
