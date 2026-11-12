@@ -28,8 +28,8 @@ const splitLeather = calculateSplitBinding(leatherExample);
 assert.equal(splitLeather.percentage, 20);
 assert.ok(Math.abs(splitLeather.perCover - 25.8) < 1e-9);
 assert.ok(Math.abs(splitLeather.acrossCase - 98.2) < 1e-9);
-assert.deepEqual(RULES.hingePresets, [6, 7, 7.8, 8, 9, 10]);
-for (const gap of RULES.hingePresets) {
+// 힌지 간격은 프리셋에 제한되지 않는 직접 숫자 입력 방식입니다.
+for (const gap of [6, 7, 7.8, 8, 8.3, 9, 10]) {
   const changedHinge = calculateBinding({ ...currentExample, bindingType: "roundLeather", hingeGap: gap });
   assert.equal(changedHinge.hingeGap, gap);
   assert.ok(Math.abs(calculateSplitBinding(changedHinge).acrossCase - (82.6 + gap * 2)) < 1e-9);
@@ -102,4 +102,4 @@ assert.ok(Math.abs(six.centerSpacing - 263 * 4 / 26) < 1e-9);
 assert.deepEqual(calculateSpineBands(211, 5).positions.map(x => Math.round(x * 10) / 10), [28.8, 67.1, 105.5, 143.9, 182.2]);
 for (const bad of ["", 0, -3, "abc", Infinity]) assert.throws(() => calculateSpineBands(bad, 5));
 for (const bad of [0, 4, 7, 5.5, "abc"]) assert.throws(() => calculateSpineBands(211, bad));
-console.log("PASS v0.8 fabric cut and hinge presets, spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
+console.log("PASS v0.8.1 fabric cut and editable hinge gap, spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
