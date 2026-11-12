@@ -28,6 +28,29 @@ const splitLeather = calculateSplitBinding(leatherExample);
 assert.equal(splitLeather.percentage, 20);
 assert.ok(Math.abs(splitLeather.perCover - 25.8) < 1e-9);
 assert.ok(Math.abs(splitLeather.acrossCase - 98.2) < 1e-9);
+assert.deepEqual(RULES.hingePresets, [6, 7, 7.8, 8, 9, 10]);
+for (const gap of RULES.hingePresets) {
+  const changedHinge = calculateBinding({ ...currentExample, bindingType: "roundLeather", hingeGap: gap });
+  assert.equal(changedHinge.hingeGap, gap);
+  assert.ok(Math.abs(calculateSplitBinding(changedHinge).acrossCase - (82.6 + gap * 2)) < 1e-9);
+}
+// 앞·뒤 2장의 북클로스 재단 크기 = 노출 표지폭 + 바깥쪽 1변 여유, 세로 + 상하 2변 여유.
+assert.equal(splitLeather.fabricPieces, 2);
+assert.ok(Math.abs(splitLeather.fabricVisibleWidth - 103.2) < 1e-9);
+assert.equal(splitLeather.fabricTurnIn, 20);
+assert.equal(splitLeather.edgeWrapAllowance, 2.7);
+assert.equal(splitLeather.fabricDisplayWidth, 126);
+assert.equal(splitLeather.fabricDisplayHeight, 245);
+assert.equal(calculateSplitBinding(leatherExample, { percentage: 20, edgeWrapAllowance: 4 }).fabricDisplayWidth, 128);
+assert.equal(calculateSplitBinding(leatherExample, { percentage: 20, edgeWrapAllowance: 4 }).fabricDisplayHeight, 247);
+const fullLeatherSplit = calculateSplitBinding(leatherExample, { percentage: 100 });
+assert.equal(fullLeatherSplit.fabricPieces, 0);
+assert.equal(fullLeatherSplit.fabricDisplayWidth, null);
+assert.equal(fullLeatherSplit.fabricDisplayHeight, null);
+for (const v of ["", -1, "bad", Infinity]) {
+  assert.throws(() => calculateSplitBinding(leatherExample, { edgeWrapAllowance: v }));
+  assert.throws(() => calculateSplitBinding(leatherExample, { fabricTurnIn: v }));
+}
 const splitFabric = calculateSplitBinding(fabricExample);
 assert.ok(Math.abs(splitFabric.perCover - 25.4) < 1e-9);
 assert.ok(Math.abs(splitFabric.acrossCase - 99.4) < 1e-9);
@@ -36,6 +59,11 @@ const editedLeather = applyBoardDimensions(leatherExample, { coverWidth: 130, sp
 const splitEdited = calculateSplitBinding(editedLeather, { percentage: 25 });
 assert.ok(Math.abs(splitEdited.perCover - 32.5) < 1e-9);
 assert.ok(Math.abs(splitEdited.acrossCase - 110.6) < 1e-9);
+assert.equal(splitEdited.fabricDisplayWidth, 121);
+assert.equal(splitEdited.fabricDisplayHeight, 245);
+const editedHeight = applyBoardDimensions(leatherExample, { coverWidth: 140, coverHeight: 220 });
+assert.equal(calculateSplitBinding(editedHeight, { percentage: 25 }).fabricDisplayWidth, 128);
+assert.equal(calculateSplitBinding(editedHeight, { percentage: 25 }).fabricDisplayHeight, 266);
 const alteredHinge = { ...leatherExample, hingeGap: 9 };
 assert.ok(Math.abs(calculateSplitBinding(alteredHinge).acrossCase - 100.6) < 1e-9);
 for (const percentage of ["", 0, -3, 100.1, "abc", Infinity]) {
@@ -74,4 +102,4 @@ assert.ok(Math.abs(six.centerSpacing - 263 * 4 / 26) < 1e-9);
 assert.deepEqual(calculateSpineBands(211, 5).positions.map(x => Math.round(x * 10) / 10), [28.8, 67.1, 105.5, 143.9, 182.2]);
 for (const bad of ["", 0, -3, "abc", Infinity]) assert.throws(() => calculateSpineBands(bad, 5));
 for (const bad of [0, 4, 7, 5.5, "abc"]) assert.throws(() => calculateSpineBands(211, bad));
-console.log("PASS v0.7 spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
+console.log("PASS v0.8 fabric cut and hinge presets, spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
