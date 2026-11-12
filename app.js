@@ -1,4 +1,4 @@
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, formatNumber, RULES } from "./rules.js?v=0.7";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, formatNumber, RULES } from "./rules.js?v=0.7.1";
 
 const $ = (id) => document.getElementById(id);
 const ids = [
@@ -42,9 +42,18 @@ function render() {
     els.squareResult.textContent = `${formatNumber(board.square)} mm`;
     els.boardStatus.textContent = changed ? "수동 조정한 최종 보드 치수가 겉재료 재단과 분할 계산에 반영되었습니다." : "현재 최종 재단 치수는 자동 권장값과 같습니다.";
     const bands = calculateSpineBands(board.spineHeight, els.bandCount.value);
-    els.bandPositions.textContent = bands.positions.map((mm, i) => `${i + 1}번 ${formatNumber(Math.round(mm * 10) / 10)} mm`).join(" · ");
-    els.bandSpacingResult.textContent = `${formatNumber(Math.round(bands.centerSpacing * 10) / 10)} mm`;
-    els.bandEdgeResult.textContent = `${formatNumber(Math.round(bands.edgeMargin * 10) / 10)} mm`;
+    els.bandPositions.replaceChildren(...bands.positions.map((mm, i) => {
+      const row = document.createElement("div");
+      row.className = "band-position-line";
+      const label = document.createElement("span");
+      label.textContent = `${i + 1}번`;
+      const value = document.createElement("span");
+      value.textContent = `${Math.round(mm)} mm`;
+      row.append(label, value);
+      return row;
+    }));
+    els.bandSpacingResult.textContent = `${Math.round(bands.centerSpacing)} mm`;
+    els.bandEdgeResult.textContent = `${Math.round(bands.edgeMargin)} mm`;
     els.bandPreview.replaceChildren(...bands.positions.map(mm => {
       const marker = document.createElement("span");
       marker.className = "band-marker";
