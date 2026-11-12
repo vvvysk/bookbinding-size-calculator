@@ -58,3 +58,7 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .band-position-line { display: grid; grid-template-columns: 32px auto; gap: 10px; align-items: baseline; font-size: 17px; font-weight: 650; line-height: 1.5; white-space: nowrap; }
 .band-secondary-label { margin-top: 22px; }
 @media (max-width: 700px) { .band-layout-card { gap: 16px; } .band-positions { gap: 5px; } .band-position-line { font-size: 15px; } }
+
+/* 분할 북클로스 재단 결과: 표면 전개폭과 명확하게 구별 */
+.split-fabric-result { grid-column: 1 / -1; }
+.split-fabric-result .result-main { color: #805c28; }
