@@ -1,7 +1,8 @@
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, formatNumber, RULES } from "./rules.js?v=0.6.1";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, formatNumber, RULES } from "./rules.js?v=0.7";
 
 const $ = (id) => document.getElementById(id);
 const ids = [
+  "sizePreset", "bandCount", "bandPositions", "bandSpacingResult", "bandEdgeResult", "bandPreview",
   "bindingType", "textWidth", "textHeight", "textThickness", "square", "hingeGap", "material", "turnIn", "edgeWrapAllowance",
   "coverWidth", "coverHeight", "spineWidth", "spineHeight", "coverResult", "spineResult", "coverRecommended", "spineRecommended",
   "restoreBoards", "boardStatus", "hingeResult", "squareResult", "ruleText", "notice", "materialResult", "turnInResult",
@@ -11,7 +12,7 @@ const ids = [
 const els = Object.fromEntries(ids.map(id => [id, $(id)]));
 const boardFields = ["coverWidth", "coverHeight", "spineWidth", "spineHeight"];
 const resultFields = ["coverResult", "spineResult", "hingeResult", "squareResult", "materialResult", "turnInResult",
-  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult", "splitPerCover", "splitAcrossCase"];
+  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult", "splitPerCover", "splitAcrossCase", "bandPositions", "bandSpacingResult", "bandEdgeResult"];
 
 function readRecommended() {
   return calculateBinding({
@@ -40,6 +41,16 @@ function render() {
     els.hingeResult.textContent = `${formatNumber(board.hingeGap)} mm`;
     els.squareResult.textContent = `${formatNumber(board.square)} mm`;
     els.boardStatus.textContent = changed ? "수동 조정한 최종 보드 치수가 겉재료 재단과 분할 계산에 반영되었습니다." : "현재 최종 재단 치수는 자동 권장값과 같습니다.";
+    const bands = calculateSpineBands(board.spineHeight, els.bandCount.value);
+    els.bandPositions.textContent = bands.positions.map((mm, i) => `${i + 1}번 ${formatNumber(Math.round(mm * 10) / 10)} mm`).join(" · ");
+    els.bandSpacingResult.textContent = `${formatNumber(Math.round(bands.centerSpacing * 10) / 10)} mm`;
+    els.bandEdgeResult.textContent = `${formatNumber(Math.round(bands.edgeMargin * 10) / 10)} mm`;
+    els.bandPreview.replaceChildren(...bands.positions.map(mm => {
+      const marker = document.createElement("span");
+      marker.className = "band-marker";
+      marker.style.top = `${mm / bands.height * 100}%`;
+      return marker;
+    }));
     els.splitDetails.hidden = !els.splitEnabled.checked;
     if (els.splitEnabled.checked) {
       const split = calculateSplitBinding(board, { percentage: els.splitPercent.value });
@@ -71,6 +82,7 @@ function render() {
     els.coverRecommended.textContent = "-";
     els.spineRecommended.textContent = "-";
     els.boardStatus.textContent = "";
+    els.bandPreview.replaceChildren();
     els.ruleText.replaceChildren();
     els.notice.textContent = error.message;
   }
@@ -101,6 +113,8 @@ Object.entries(RULES.materials).forEach(([value, material]) => {
   option.textContent = material.label;
   els.material.append(option);
 });
+els.sizePreset.value = "custom";
+els.bandCount.value = "5";
 els.square.value = RULES[els.bindingType.value].square;
 els.hingeGap.value = RULES.hingeGap;
 els.edgeWrapAllowance.value = RULES.edgeWrapAllowance;
@@ -127,9 +141,25 @@ els.material.addEventListener("change", () => {
     render(); // 천연↔인조 전환 시 수동 보드 치수는 유지합니다.
   }
 });
-["textWidth", "textHeight", "textThickness", "square"].forEach(id => {
+els.sizePreset.addEventListener("change", () => {
+  const preset = SIZE_PRESETS[els.sizePreset.value];
+  if (preset) {
+    els.textWidth.value = preset.textWidth;
+    els.textHeight.value = preset.textHeight;
+    els.bandCount.value = "5";
+  }
+  restoreBoards();
+});
+["textWidth", "textHeight"].forEach(id => {
+  els[id].addEventListener("input", () => {
+    els.sizePreset.value = "custom";
+    restoreBoards();
+  });
+});
+["textThickness", "square"].forEach(id => {
   els[id].addEventListener("input", restoreBoards);
 });
+els.bandCount.addEventListener("change", render);
 ["hingeGap", "turnIn", "edgeWrapAllowance", "splitPercent", ...boardFields].forEach(id => {
   els[id].addEventListener("input", render);
 });
