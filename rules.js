@@ -11,6 +11,26 @@ export const RULES = Object.freeze({
   roundLeather: { label: "가죽 라운드", coverWidthDelta: -4, spineWidthDelta: 8, square: 3 },
 });
 
+// 표준 반접 속지 3규격(mm); 재단은 최종 책등 보드 기준으로 계산.
+export const SIZE_PRESETS = Object.freeze({
+  small: { label: "소형 · B5 반접", textWidth: 128.5, textHeight: 182 },
+  medium: { label: "중형 · A4 반접", textWidth: 148.5, textHeight: 210 },
+  large: { label: "대형 · B4 반접", textWidth: 182, textHeight: 257 },
+});
+export const BAND_RULE = Object.freeze({ edgeUnits: 3, gapUnits: 4, defaultCount: 5 });
+
+// 5개 = 3:4:4:4:4:3, 6개 = 3:4:4:4:4:4:3 (대형 비교안).
+export function calculateSpineBands(spineHeight, count = BAND_RULE.defaultCount) {
+  const height = positiveNumber(spineHeight, "책등 보드 세로");
+  const n = Number(count);
+  if (!Number.isInteger(n) || ![5, 6].includes(n)) throw new Error("돌출띠 개수는 5개 또는 6개를 선택하세요.");
+  const totalUnits = BAND_RULE.edgeUnits * 2 + BAND_RULE.gapUnits * (n - 1);
+  const edgeMargin = height * BAND_RULE.edgeUnits / totalUnits;
+  const centerSpacing = height * BAND_RULE.gapUnits / totalUnits;
+  const positions = Array.from({ length: n }, (_, i) => height * (BAND_RULE.edgeUnits + i * BAND_RULE.gapUnits) / totalUnits);
+  return { height, count: n, totalUnits, edgeMargin, centerSpacing, positions };
+}
+
 const BINDING_TYPES = ["flatFabric", "roundFabric", "roundLeather"];
 
 export function ceilToHalf(value) {
