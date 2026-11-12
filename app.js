@@ -1,18 +1,18 @@
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, formatNumber, RULES } from "./rules.js?v=0.7.1";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, formatNumber, RULES } from "./rules.js?v=0.8";
 
 const $ = (id) => document.getElementById(id);
 const ids = [
   "sizePreset", "bandCount", "bandPositions", "bandSpacingResult", "bandEdgeResult", "bandPreview",
-  "bindingType", "textWidth", "textHeight", "textThickness", "square", "hingeGap", "material", "turnIn", "edgeWrapAllowance",
+  "bindingType", "textWidth", "textHeight", "textThickness", "square", "hingeGap", "hingePreset", "hingeCustomWrap", "material", "turnIn", "edgeWrapAllowance",
   "coverWidth", "coverHeight", "spineWidth", "spineHeight", "coverResult", "spineResult", "coverRecommended", "spineRecommended",
   "restoreBoards", "boardStatus", "hingeResult", "squareResult", "ruleText", "notice", "materialResult", "turnInResult",
   "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult",
-  "splitEnabled", "splitPercent", "splitDetails", "splitPerCover", "splitAcrossCase",
+  "splitEnabled", "splitPercent", "splitDetails", "splitPerCover", "splitAcrossCase", "splitFabricResult",
 ];
 const els = Object.fromEntries(ids.map(id => [id, $(id)]));
 const boardFields = ["coverWidth", "coverHeight", "spineWidth", "spineHeight"];
 const resultFields = ["coverResult", "spineResult", "hingeResult", "squareResult", "materialResult", "turnInResult",
-  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult", "splitPerCover", "splitAcrossCase", "bandPositions", "bandSpacingResult", "bandEdgeResult"];
+  "edgeWrapResult", "totalSideResult", "caseWidthResult", "materialSizeResult", "splitPerCover", "splitAcrossCase", "splitFabricResult", "bandPositions", "bandSpacingResult", "bandEdgeResult"];
 
 function readRecommended() {
   return calculateBinding({
@@ -62,12 +62,19 @@ function render() {
     }));
     els.splitDetails.hidden = !els.splitEnabled.checked;
     if (els.splitEnabled.checked) {
-      const split = calculateSplitBinding(board, { percentage: els.splitPercent.value });
+      const split = calculateSplitBinding(board, {
+        percentage: els.splitPercent.value,
+        edgeWrapAllowance: els.edgeWrapAllowance.value,
+      });
       els.splitPerCover.textContent = `${formatNumber(split.perCover)} mm`;
       els.splitAcrossCase.textContent = `${formatNumber(split.acrossCase)} mm`;
+      els.splitFabricResult.textContent = split.fabricPieces
+        ? `${split.fabricDisplayWidth} × ${split.fabricDisplayHeight} mm`
+        : "해당 없음 (패브릭 0장)";
     } else {
       els.splitPerCover.textContent = "-";
       els.splitAcrossCase.textContent = "-";
+      els.splitFabricResult.textContent = "-";
     }
     const outer = calculateOuterMaterial(board, {
       material: els.material.value,
@@ -122,6 +129,19 @@ Object.entries(RULES.materials).forEach(([value, material]) => {
   option.textContent = material.label;
   els.material.append(option);
 });
+// 힌지 간격은 여러 선택지 중 고르되, 임의의 폭도 직접 입력 가능.
+RULES.hingePresets.forEach(value => {
+  const option = document.createElement("option");
+  option.value = String(value);
+  option.textContent = `${value} mm${value === RULES.hingeGap ? " · 기본" : ""}`;
+  els.hingePreset.append(option);
+});
+const customHinge = document.createElement("option");
+customHinge.value = "custom";
+customHinge.textContent = "직접 입력";
+els.hingePreset.append(customHinge);
+els.hingePreset.value = String(RULES.hingeGap);
+els.hingeCustomWrap.hidden = true;
 els.sizePreset.value = "custom";
 els.bandCount.value = "5";
 els.square.value = RULES[els.bindingType.value].square;
@@ -169,6 +189,16 @@ els.sizePreset.addEventListener("change", () => {
   els[id].addEventListener("input", restoreBoards);
 });
 els.bandCount.addEventListener("change", render);
+els.hingePreset.addEventListener("change", () => {
+  const isCustom = els.hingePreset.value === "custom";
+  els.hingeCustomWrap.hidden = !isCustom;
+  if (isCustom) {
+    els.hingeGap.focus();
+  } else {
+    els.hingeGap.value = els.hingePreset.value;
+    render();
+  }
+});
 ["hingeGap", "turnIn", "edgeWrapAllowance", "splitPercent", ...boardFields].forEach(id => {
   els[id].addEventListener("input", render);
 });
