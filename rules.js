@@ -1,6 +1,5 @@
 export const RULES = Object.freeze({
   hingeGap: 7.8,
-  hingePresets: [6, 7, 7.8, 8, 9, 10],
   edgeWrapAllowance: 2.7,
   materials: {
     fabric: { label: "패브릭", turnIn: 20 },
