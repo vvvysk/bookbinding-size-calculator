@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>제본 치수 계산기 v0.8</title>
-  <link rel="stylesheet" href="./styles.css?v=0.8" />
+  <link rel="stylesheet" href="./styles.css?v=0.8.1" />
 </head>
 <body>
   <main class="app-shell">
@@ -32,8 +32,7 @@
         <label><span>속지 세로 (mm)</span><input id="textHeight" type="number" min="0.1" step="0.1" value="183" /></label>
         <label><span>속지 두께 (mm)</span><input id="textThickness" type="number" min="0.1" step="0.1" value="18" /></label>
         <label><span>상·하 돌출량 (mm)</span><input id="square" type="number" min="0" step="0.1" /></label>
-        <label><span>힌지 간격 선택 (mm)</span><select id="hingePreset"></select></label>
-        <label id="hingeCustomWrap" hidden><span>힌지 간격 직접 입력 (mm)</span><input id="hingeGap" type="number" min="0.1" step="0.1" /></label>
+        <label><span>힌지 간격 (mm)</span><input id="hingeGap" type="number" min="0.1" step="0.1" /></label>
         <label><span>겉재료</span><select id="material"></select></label>
         <label><span>안쪽 턴인 목표 (mm)</span><input id="turnIn" type="number" min="0" step="0.1" /></label>
         <label><span>엣지 회전 여유 (mm)</span><input id="edgeWrapAllowance" type="number" min="0" step="0.1" /></label>
@@ -127,7 +126,6 @@
 
       <h2 class="result-heading">조립</h2>
       <div class="results">
-        <div class="result-card"><div class="result-label">힌지 간격</div><div class="result-main" id="hingeResult">-</div><div class="result-sub">좌·우 동일</div></div>
         <div class="result-card"><div class="result-label">상·하 돌출</div><div class="result-main" id="squareResult">-</div><div class="result-sub">각각</div></div>
       </div>
 
@@ -149,6 +147,6 @@
       </section>
     </section>
   </main>
-  <script type="module" src="./app.js?v=0.8"></script>
+  <script type="module" src="./app.js?v=0.8.1"></script>
 </body>
 </html>
