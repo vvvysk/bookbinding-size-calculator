@@ -45,3 +45,15 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .split-options { max-width: 240px; margin-top: 4px; }
 .split-results { margin-top: 14px; }
 .split-section .input-help { margin-top: 12px; }
+
+/* 책등 돌출띠 중심선 도식 */
+.band-section { border-top: 1px solid #e3dfd7; margin-top: 20px; padding-top: 4px; }
+.band-choice { min-width: 175px; }
+.band-choice select { padding: 9px 10px; font-size: 13px; }
+.band-results { margin-top: 14px; }
+.band-layout-card { display: flex; gap: 22px; align-items: center; }
+.band-preview { position: relative; height: 210px; width: 54px; flex: 0 0 54px; border: 1px solid #5a4330; border-radius: 3px; background: #73523a; }
+.band-marker { position: absolute; left: -3px; width: calc(100% + 6px); height: 5px; transform: translateY(-50%); border-radius: 2px; background: #d8b98b; border: 1px solid #493524; }
+.band-positions { margin-top: 10px; font-size: 17px; font-weight: 650; line-height: 1.8; word-break: keep-all; }
+.band-secondary-label { margin-top: 22px; }
+@media (max-width: 700px) { .band-layout-card { gap: 16px; } .band-positions { font-size: 15px; } }
