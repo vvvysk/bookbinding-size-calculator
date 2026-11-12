@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, RULES } from "./rules.js";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, RULES } from "./rules.js";
 const base={textWidth:132,textHeight:183,textThickness:18};
 for(const [type,c,s] of [["flatFabric",132,23],["roundFabric",126,28],["roundLeather",128,26]]){
   const x=calculateBinding({...base,bindingType:type});
@@ -52,4 +52,26 @@ for(const v of ["",0,-1,"abc",Infinity]) {
   assert.throws(()=>applyBoardDimensions(round,{spineWidth:v}));
 }
 assert.throws(()=>calculateOuterMaterial(round,{material:"leather"}));
-console.log("PASS v0.6 round-leather geometry, split width calculations, overrides and input validation");
+assert.deepEqual(Object.keys(SIZE_PRESETS), ["small", "medium", "large"]);
+for (const [key, dims, expectedHeight] of [
+  ["small", [128.5, 182], 188], ["medium", [148.5, 210], 216], ["large", [182, 257], 263],
+]) {
+  const preset = SIZE_PRESETS[key];
+  assert.deepEqual([preset.textWidth, preset.textHeight], dims);
+  const board = calculateBinding({ ...base, ...preset, bindingType: "roundLeather" });
+  assert.equal(board.spineHeight, expectedHeight);
+  const five = calculateSpineBands(board.spineHeight, 5);
+  assert.equal(five.positions.length, 5);
+  assert.ok(Math.abs(five.positions[2] - expectedHeight / 2) < 1e-9);
+  assert.ok(Math.abs(five.edgeMargin + five.centerSpacing * 4 + five.edgeMargin - expectedHeight) < 1e-9);
+  assert.ok(Math.abs(five.positions[0] + five.positions[4] - expectedHeight) < 1e-9);
+  assert.ok(Math.abs(five.edgeMargin / five.centerSpacing - 3 / 4) < 1e-9);
+}
+const six = calculateSpineBands(263, 6);
+assert.equal(six.positions.length, 6);
+assert.ok(Math.abs(six.positions[2] + six.positions[3] - 263) < 1e-9);
+assert.ok(Math.abs(six.centerSpacing - 263 * 4 / 26) < 1e-9);
+assert.deepEqual(calculateSpineBands(211, 5).positions.map(x => Math.round(x * 10) / 10), [28.8, 67.1, 105.5, 143.9, 182.2]);
+for (const bad of ["", 0, -3, "abc", Infinity]) assert.throws(() => calculateSpineBands(bad, 5));
+for (const bad of [0, 4, 7, 5.5, "abc"]) assert.throws(() => calculateSpineBands(211, bad));
+console.log("PASS v0.7 spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
