@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, RULES } from "./rules.js";
+import { calculateBinding, applyBoardDimensions, calculateOuterMaterial, calculateSplitBinding, calculateSpineBands, SIZE_PRESETS, GOLDEN_RATIO, goldenSlimWidth, RULES } from "./rules.js";
 const base={textWidth:132,textHeight:183,textThickness:18};
 for(const [type,c,s] of [["flatFabric",132,23],["roundFabric",126,28],["roundLeather",128,26]]){
   const x=calculateBinding({...base,bindingType:type});
@@ -80,7 +80,27 @@ for(const v of ["",0,-1,"abc",Infinity]) {
   assert.throws(()=>applyBoardDimensions(round,{spineWidth:v}));
 }
 assert.throws(()=>calculateOuterMaterial(round,{material:"leather"}));
-assert.deepEqual(Object.keys(SIZE_PRESETS), ["small", "medium", "large"]);
+assert.deepEqual(Object.keys(SIZE_PRESETS), ["small", "medium", "large", "slimSmall", "slimMedium"]);
+assert.equal(goldenSlimWidth(182), 112.5);
+assert.equal(goldenSlimWidth(210), 129.8);
+for (const [key, source, expected, trimmed] of [
+  ["slimSmall", "small", [112.5, 182], 16],
+  ["slimMedium", "medium", [129.8, 210], 18.7],
+]) {
+  const slim = SIZE_PRESETS[key];
+  const regular = SIZE_PRESETS[source];
+  assert.deepEqual([slim.textWidth, slim.textHeight], expected);
+  assert.equal(slim.textHeight, regular.textHeight);
+  assert.ok(Math.abs(regular.textWidth - slim.textWidth - trimmed) < 1e-9);
+  assert.ok(Math.abs(slim.textHeight / slim.textWidth - GOLDEN_RATIO) < 0.001);
+  for (const bindingType of ["flatFabric", "roundFabric", "roundLeather"]) {
+    const board = calculateBinding({...base, ...slim, bindingType});
+    assert.equal(board.coverHeight, slim.textHeight + 6);
+    assert.ok(board.coverWidth > 0);
+    assert.ok(calculateSplitBinding(board).fabricDisplayWidth > 0);
+    assert.equal(calculateSpineBands(board.spineHeight).positions.length, 5);
+  }
+}
 for (const [key, dims, expectedHeight] of [
   ["small", [128.5, 182], 188], ["medium", [148.5, 210], 216], ["large", [182, 257], 263],
 ]) {
@@ -102,4 +122,4 @@ assert.ok(Math.abs(six.centerSpacing - 263 * 4 / 26) < 1e-9);
 assert.deepEqual(calculateSpineBands(211, 5).positions.map(x => Math.round(x * 10) / 10), [28.8, 67.1, 105.5, 143.9, 182.2]);
 for (const bad of ["", 0, -3, "abc", Infinity]) assert.throws(() => calculateSpineBands(bad, 5));
 for (const bad of [0, 4, 7, 5.5, "abc"]) assert.throws(() => calculateSpineBands(211, bad));
-console.log("PASS v0.8.1 fabric cut and editable hinge gap, spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
+console.log("PASS v0.9 golden-ratio slim presets and fabric cut and editable hinge gap, spine bands, size presets, round-leather geometry, split width calculations, overrides and input validation");
