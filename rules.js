@@ -11,11 +11,18 @@ export const RULES = Object.freeze({
   roundLeather: { label: "가죽 라운드", coverWidthDelta: -4, spineWidthDelta: 8, square: 3 },
 });
 
-// 표준 반접 속지 3규격(mm); 재단은 최종 책등 보드 기준으로 계산.
+// 현재의 반접 속지 3규격 + 재단으로 만드는 황금비 슬림형 2규격(mm).
+// 슬림은 종이 높이를 유지하고 앞배 폭만 줄이므로, 과거 실험 판형을 혼용하지 않습니다.
+export const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
+export function goldenSlimWidth(height) {
+  return Math.round((height / GOLDEN_RATIO) * 10) / 10;
+}
 export const SIZE_PRESETS = Object.freeze({
   small: { label: "소형 · B5 반접", textWidth: 128.5, textHeight: 182 },
   medium: { label: "중형 · A4 반접", textWidth: 148.5, textHeight: 210 },
   large: { label: "대형 · B4 반접", textWidth: 182, textHeight: 257 },
+  slimSmall: { label: "황금비 소형 · B5 반접", textWidth: goldenSlimWidth(182), textHeight: 182 },
+  slimMedium: { label: "황금비 중형 · A4 반접", textWidth: goldenSlimWidth(210), textHeight: 210 },
 });
 export const BAND_RULE = Object.freeze({ edgeUnits: 3, gapUnits: 4, defaultCount: 5 });
 
